@@ -1,0 +1,62 @@
+﻿
+@{
+    ViewBag.Title = "approvedList";
+    Layout = "~/Views/Shared/admin.cshtml";
+}
+
+
+@using GBSLeave.App_Code;
+@using System.Data;
+
+
+<head>
+    <style>
+        th {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="boxForLeaveRequest">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="box">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-dark table-hover">
+                            <tr><th>From Day</th><th>To Day</th><th>Day</th><th class="hideOnPhone">Reason</th><th class="hideOnPhone">Remark</th></tr>
+                            @{
+                                int EmpID = 1; DataTable dt;
+                                RequestList l = new RequestList();
+                                dt = l.GetApprovedLeave(EmpID);
+                                for (int i = 0; i < dt.Rows.Count; i++)
+                                {
+                                    <tr>
+                                        <td>@dt.Rows[i][1].ToString()</td>
+                                        <td>@dt.Rows[i][2].ToString()</td>
+                                        <td>@dt.Rows[i][3].ToString()</td>
+                                        <td class="hideOnPhone">@dt.Rows[i][4].ToString()</td>
+                                        <td class="hideOnPhone">@dt.Rows[i][5].ToString()</td>
+
+                                    </tr>
+                                }
+                            }
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+

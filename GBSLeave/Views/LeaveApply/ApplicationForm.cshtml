@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewBag.Title = "ApplicationForm";
+}
+@using GBSLeave.App_Code;
+@using System.Data;
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <script>
+              $(document).ready(function () {
+                  document.getElementById("forOneDay").hidden = true;
+              });
+    </script>
+    <script>
+        $(function () {
+            $(".datepicker").datepicker();
+            dateFormat: 'yyyy-mm-dd'
+        });
+    </script>
+
+    <link rel="stylesheet" href="~/Content/applicationForm.css" />
+    <script type="text/javascript" src="~/Scripts/applicationForm.js"></script>
+</head>
+<body>
+    @{
+        Session["EmpID"] = 1;
+        string EmloyeeID = Session["EmpID"].ToString();
+        int x = Int32.Parse(EmloyeeID);
+        Leave l = new Leave();
+    }
+
+    <center>
+        <p class="pageSize">
+            <div class="hideOnPhone">
+                <div class="container-fluid">
+                    <div class="box-header">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6" align="left" style="color:#8B7D6B">
+
+                                        <table>
+                                            <tr><td>Apply Date:</td><td> @DateTime.Now.ToString("yyyy-MM-dd")</td></tr>
+                                            <tr><td>Employ Date:</td><td> @l.getEmployDate(x) </td></tr>
+                                            <tr><td>Approval Date:</td><td>@l.getApprovalDate(x)</td></tr>
+                                        </table>
+
+                                    </div>
+                                    <div class="col-md-6" align="right" style="color:#8FBC8F;">
+                                        <table>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <select class="form-control select2 select2-hidden-accessible" id="handoverSelect" onmouseover="checkHandover()">
+                                                        <option value="">Enter Handover Employee</option>
+                                                        @{
+                                                            int ini = 1;
+                                                            Leave le = new Leave();
+                                                            int branch = le.getBranch(x);
+                                                            int dept = le.getDept(x);
+                                                            DataTable dt1 = le.GetHandOverEmployee(branch, dept, x);
+                                                            foreach (DataColumn col in dt1.Columns)
+                                                            {
+                                                                foreach (DataRow row in dt1.Rows)
+                                                                {
+                                                                    string name = row[col.ColumnName].ToString();
+                                                                    <option value="@le.getFigerID(name)">@name </option>
+                                                                    ini = ini + 1;
+                                                                }
+                                                            }
+                                                        }
+
+                                                    </select>
+                                                    FingerID:<span id="fingerID"></span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="box">
+                <div class="row">
+                    <div class="col-md-3">Enter Required Leave Duration:</div>
+                    <div class="col-md-3"><input type="datetime" name="dateRS" class="datepicker" id="RSDate" placeholder="Start Date" /></div>
+                    <div class="col-md-3"><input type="datetime" name="dateRE" class="datepicker" id="REDate" placeholder="End Date" /></div>
+                    <div class="col-md-3">Required Day:<span id="requiredDay"></span></div>
+                </div>
+                <table align="center" class="table">
+                    <tr id="forOneDay" class="col-sm-12">
+                        <td>
+                            <input type="checkbox" class="compassionate" value="compassionate"> Is Compassionate
+                        </td>
+                        <td>
+                            <input type="radio" name="gender" value="full day"> Full Day
+                        </td>
+                        <td>
+                            <input type="radio" name="gender" value="first half day"> First Half Day
+                        </td>
+                        <td>
+                            <input type="radio" name="gender" value="second half day"> Second Half Day
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <hr class="style13">
+
+
+            <div class="box" onmouseover="checkForOneDay()">
+                <div class="row">
+                    <div class="col-md-3">
+                        @{
+                            LeaveAdmin la = new LeaveAdmin();
+                            DataTable dtla = la.getAllByQuery("select * from Leave");
+                            <select id="comboValue" class="form-control select2 select2-hidden-accessible" style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                <option value="" required>Select Leave Type</option>
+                                @{ 
+                                    foreach(DataRow row in dtla.Rows)
+                                    {
+                                        int ID = Convert.ToInt32(row["ID"]);
+                                        string name = row["LeaveName"].ToString();
+                                        <option value="@ID">@name</option>
+                                    }
+                                }
+                            </select>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        <input type="datetime" name="dateS" class="datepicker" id="sDate" placeholder="Enter Start Date" onmouseover="onMouseOverEndDate()" />
+                    </div>
+                    <div class="col-md-3">
+                        <input type="datetime" name="dateE" class="datepicker" id="eDate" placeholder="Enter End Date" onmouseover="onMouseOverEndDate()" onmouseout="checkForOneDay()" />
+                    </div>
+                    <div class="col-md-3">
+                        <button onclick="myFunction()" id="chooseButton" onmouseover="checkForOneDay()" class="btn btn-block btn-default">CHOOSE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div>
+                                        <table class="borderTable1">
+                                            <tr><th>Leave Type</th><th>Allowed Days</th><th>Used</th><th>Balance</th></tr>
+                                            
+                                            @{
+                                                LeaveAdmin la1 = new LeaveAdmin();
+                                                DataTable dtla1 = la.getAllByQuery("select * from Leave");
+                                                foreach (DataRow row in dtla1.Rows)
+                                                {
+                                                    int ID = Convert.ToInt32(row["ID"]);
+                                                    string name = row["LeaveName"].ToString();
+                                                    <tr>
+                                                        <td>@name</td>
+                                                        <td>@l.getLeaveDay(ID)</td>
+                                                        <td>@l.getUsedLeave(x, ID)</td>
+                                                        <td>
+                                                            @{
+                                                                int left1 = l.getLeaveDay(ID) - l.getUsedLeave(x, ID);
+                                                            }
+
+                                                            @left1
+                                                        </td>
+                                                    </tr>
+                                                                }
+                                            }
+                                          
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+        <p id="error"></p>
+        <p id="demo"> </p>
+        </div>
+        <br />
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        <br />
+        <div onmouseover="addArrayDataToHiddenField()" />
+        @using (Html.BeginForm("GetValueFromLeaveApplicationForm", "LeaveApply"))
+        {
+            <form>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" name="HComboValue" id="HC" />
+                                <input type="hidden" name="HStartDate" id="HS" />
+                                <input type="hidden" name="HEndDate" id="HE" />
+                                <input type="hidden" name="HOneDay" id="HO" /><!--To put isCompassionate, first half day, and second half day -->
+                                <input type="hidden" name="HDateDiff" id="HD" />
+                                <input type="hidden" name="HIscompassionate" id="HI" />
+                                <input type="hidden" name="HIsHalfDay" id="HIH" />
+                                <input type="hidden" name="HHandover" id="HH" />
+                                <div class="form-group" class="col-lg-6">
+                                    <label>Enter Leave Reason</label>
+                                    <textarea class="form-control" rows="3" name="reason" placeholder="Enter Your Leave Reason" required></textarea>
+                                </div>
+                                <label>Enter Phone Number</label>
+                                <input type="tel" name="mobile" id="EmployeePhone" pattern="^\d{2}[-]?\d{5,9}$" placeholder="Enter Mobile Number" required />
+                            
+                            </div>
+                            <div class="col-md-6">
+                                <label>Enter HOD Comment</label>
+                                <textarea class="form-control" rows="3" name="comment" placeholder="Enter HOD Comment" disabled="true"></textarea>
+                                <br />
+                                <input type="submit" value="REQUEST" class="btn-success" />
+                            </div>
+                        </div>
+                    </div>
+            </form>
+        }
+        </div>
+        <br />
+        </div>
+    </center>
+</body>
+</html>
+

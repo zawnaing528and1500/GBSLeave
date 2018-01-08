@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "registerUser";
+    Layout = "~/Views/Shared/admin.cshtml";
+}
+@using GBSLeave.App_Code;
+@using System.Data;
+@using System.Diagnostics;
+
+<head>
+    <style>
+        th {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    @{ 
+        int DeptID = ViewBag.DepartmentID;
+        int BranchID = ViewBag.BranchID;
+    }
+    @using (Html.BeginForm("getFromGetEmployee", "AdminLeave"))
+    {
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Choose Employee Name:</label>
+                    <select name="EmpID" class="form-control" required>
+                        <option value="">Choose Employee</option>
+                        @{
+                            string path_and_query = HttpContext.Current.Request.Url.PathAndQuery;
+                            Session["url"] = path_and_query;
+                            Debug.WriteLine(path_and_query);
+                           
+                            
+                            LeaveAdmin l1 = new LeaveAdmin();
+                            DataTable dt1 = l1.getAllByQuery("select * from Employee where BranchID = " + BranchID + " and DeptID=" + DeptID);
+                            foreach (DataRow row in dt1.Rows)
+                            {
+                                int ID = Convert.ToInt32(row["ID"]);
+                                string name = row["EmpName"].ToString();
+                                <option value="@ID">@name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Username:</label>
+                    <input type="text" name="Username" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <label>Password:</label>
+                    <input type="text" name="Password" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <input type="submit" class="btn btn-primary" value="SET ACCOUNT" />
+                </div>
+            </div>
+        </div>
+                            }
+
+    <br />
+    <div class="box">
+        <table class="table table-dark table-hover">
+            <tr><th>Employee Name</th><th>User Name</th><th>Password</th></tr>
+            @{
+               
+                LeaveAdmin l = new LeaveAdmin();
+                DataTable dt = l.getAllByCondition("Employee", " where DeptID = " + DeptID+" and BranchID="+BranchID);
+                foreach (DataRow row in dt.Rows)
+                {
+                    int EmpID = Convert.ToInt32(row["ID"]);
+                    string Name = row["EmpName"].ToString();
+                    string un = l.getStringByQuery("select * from PublicUser where EmpID="+EmpID,"Username");
+                    string pw = l.getStringByQuery("select * from PublicUser where EmpID=" + EmpID, "Password"); ;
+                        <tr><td>@Name</td><td>@un</td><td>@pw</td></tr>
+             
+                }
+            }
+        </table>
+    </div>
+</body>

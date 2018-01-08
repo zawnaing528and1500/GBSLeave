@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewBag.Title = "getBalance";
+    Layout = "~/Views/Shared/starter.cshtml";
+}
+@using GBSLeave.App_Code;
+@using System.Data;
+
+<head>
+    <style>
+        th {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-dark table-hover">
+                    <tr><th>Leave Type</th><th>Allowed Days</th><th>Used</th><th>Balance</th></tr>
+                    @{
+                        int EmpID = 1;
+                        //need to use session
+                        DataTable dt;
+                        Leave l = new Leave();
+                        dt = l.getAllLeave();
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            string Id = dt.Rows[i][0].ToString();
+                            int ID = Convert.ToInt32(Id);
+                            int use = l.getUsedLeave(EmpID, ID);
+                            int left = l.getLeaveDay(ID) - l.getUsedLeave(EmpID, 1);
+                            <tr>
+                                <td>@dt.Rows[i][1].ToString()</td>
+                                <td>@dt.Rows[i][2].ToString()</td>
+                                <td>@use</td>
+                                <td>@left</td>
+                            </tr>
+                        }
+                    }
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+

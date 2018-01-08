@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "registerUser";
+    Layout = "~/Views/Shared/admin.cshtml";
+}
+@using GBSLeave.App_Code;
+@using System.Data;
+
+<head>
+    <style>
+        th {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <table class="table table-dark table-hover">
+            <tr><th>Branches</th></tr>
+            @{
+                LeaveAdmin l = new LeaveAdmin();
+                DataTable dt = l.getAll("Branch");
+                foreach (DataRow row in dt.Rows)
+                {
+                    int BranchID = Convert.ToInt32(row["ID"]);
+                    string Branch = row["Branch"].ToString();
+                    <tr><td><a href="~/AdminLeave/getDepartment?BranchID=@BranchID">@Branch</a></td></tr>
+                }
+            }
+        </table>
+    </div>
+</body>
